@@ -1,4 +1,4 @@
-# Kazakh Inflector
+# Qazaq Inflector
 
 [![Python Version](https://img.shields.io/badge/python-3.6%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
@@ -10,8 +10,8 @@
 Установите пакет через pip:
 
 ```bash
-pip install kazakh-inflector
-```# qazaq_inflector
+pip install qazaq_inflector
+```
 
 **Qazaq Inflector** — библиотека на Python для склонения казахских имён, ФИО и личных местоимений по падежам.
 

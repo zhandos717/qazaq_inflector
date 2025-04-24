@@ -1,4 +1,4 @@
-# qazaq_inflector
+# Qazaq inflector
 
 **Qazaq Inflector** — қазақ есімдерін, толық ФИО-ны және жекеше есімдіктерді септеу үшін Python кітапханасы.
 
