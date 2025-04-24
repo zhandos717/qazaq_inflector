@@ -1,49 +1,63 @@
-# qazaq_inflector
-
-**Qazaq Inflector** — қазақ есімдерін, толық ФИО-ны және жекеше есімдіктерді септеу үшін Python кітапханасы.
+# Kazakh Inflector
 
 [![Python Version](https://img.shields.io/badge/python-3.6%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
 
-## Мүмкіндіктер
+Библиотека для склонения казахских имен и фамилий по падежам. Поддерживает 6 основных падежей казахского языка.
 
-- Қазақ есімдерін барлық жеті септік бойынша септейді:
-  - **атау (nominative)**, **ілік (genitive)**, **барыс (dative)**, **табыс (accusative)**, **жатыс (locative)**, **шығыс (ablative)**, **құрал (instrumental)**
-- Толық ФИО (атасы/анасы суффикстері) тұрғызады:
-  - `ұлы`, `қызы` деген жақтауықтары бар бөліктер өзгеріссіз қалады
-  - ФИО әр сөзін пробел мен дефис арқылы сұрыптап, бөлек өңдейді
-- Жекеше есімдіктерді (мен, біз, сен, сіз, ол) арнайы түрде септейді
-- Көбейткіш сан (көпше түр) — `-дар`/`-дер`
-- Барлық септіктерді кесте түрінде алуға мүмкіндік береді (`declension()` әдісі)
+## Установка
 
-## Орнату
+Установите пакет через pip:
+
+```bash
+pip install kazakh-inflector
+```# qazaq_inflector
+
+**Qazaq Inflector** — библиотека на Python для склонения казахских имён, ФИО и личных местоимений по падежам.
+
+[![PyPI version](https://img.shields.io/pypi/v/qazaq_inflector.svg)](https://pypi.org/project/qazaq_inflector)
+[![Build Status](https://github.com/zhandos717/qazaq_inflector/actions/workflows/python-package.yml/badge.svg)](https://github.com/zhandos717/qazaq_inflector/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## Возможности
+
+- Склоняет одиночные имена по всем семи казахским падежам:
+  - `nominative`, `genitive`, `dative`, `accusative`, `locative`, `ablative`, `instrumental`
+- Поддерживает фамилию, имя, отчество (ФИО):
+  - части, оканчивающиеся на `ұлы` или `қызы` (патронимика) не склоняются
+  - разбивает ФИО по пробелам и дефисам
+- Склоняет личные местоимения: `мен`, `біз`, `сен`, `сіз`, `ол`
+- Генерирует множественное число: `-дар`/`-дер`
+- Формирует полную таблицу склонений через метод `declension()`
+
+## Установка
 
 ```bash
 pip install qazaq_inflector
 ```
 
-## Қолдану үлгісі
+## Быстрый старт
 
 ```python
 from qazaq_inflector import QazaqNameInflector
 
 inflector = QazaqNameInflector()
 
-# Жалғыз есімді септеу
-print(inflector.inflect("Нұрлан", "genitive"))      # Нұрланның
-print(inflector.inflect("Нұрлан", "locative"))      # Нұрланнда
+# Склонение одиночного имени
+print(inflector.inflect("Нұрлан", "genitive"))       # Нұрланның
+print(inflector.inflect("Нұрлан", "locative"))       # Нұрланнда
 
-# Толық ФИО-ны септеу
-print(inflector.inflect("Абай Құнанбаев", "dative"))  # Абайға Құнанбаевге
+# Склонение ФИО
+print(inflector.inflect("Абай Құнанбаев", "dative"))   # Абайға Құнанбаевге
 
-# Жекеше есімдіктерді септеу
-print(inflector.inflect("Мен", "ablative"))          # Меннен
-print(inflector.inflect("Сіз", "instrumental"))     # Сізбен
+# Склонение местоимений
+print(inflector.inflect("Мен", "ablative"))           # Меннен
+print(inflector.inflect("Сіз", "instrumental"))      # Сізбен
 
-# Көпше түрді алу
-print(inflector.pluralize("Нұрлан"))                  # Нұрландар
+# Множественное число
+print(inflector.pluralize("Нұрлан"))                   # Нұрландар
 
-# Толық кестені алу
+# Полная таблица
 table = inflector.declension("Нұрлан")
 for case, (sing, plur) in table.items():
     print(f"{case}: {sing} / {plur}")
@@ -52,15 +66,15 @@ for case, (sing, plur) in table.items():
 ## API
 
 ### `inflect(name: Optional[str], case: str) -> Optional[str]`
-Берілген `name` жолын `case` септігіне сәйкес өңдейді. Егер `name` бос немесе `None` болса, бастапқы жол қайтарылады.
+Склоняет `name` по падежу `case`. Если `name` равен `None` или пустая строка, возвращает оригинал.
 
 ### `pluralize(name: str) -> str`
-`name`-ге сәйкес көпше түрді (дар/дер) қайтарады.
+Возвращает множественную форму `name` с учётом гармонии: `дар` или `дер`.
 
 ### `declension(name: str) -> Dict[str, tuple]`
-Есімнің барлық септік түрлерін сөздік ретінде қайтарады: `{ case: (жал.single, көпше) }`.
+Возвращает словарь всех падежей `{ case: (singular, plural) }`.
 
-## Тестілеу
+## Тесты
 
 ```bash
 git clone https://github.com/zhandos717/qazaq_inflector.git
@@ -71,10 +85,13 @@ pytest
 
 ## Лицензия
 
-Бұл жоба MIT лицензиясы бойынша таратылады — [LICENSE](LICENSE).
+Проект распространяется под лицензией [MIT](LICENSE).
 
 ---
 
 Автор: Zhandos Zhandarbekov  
 Email: zhandos.zhandarbekov@gmail.com
+
+
+
 
