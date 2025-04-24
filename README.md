@@ -26,9 +26,9 @@ pip install qazaq_inflector
 ## Қолдану үлгісі
 
 ```python
-from qazaq_inflector import KazakhNameInflector
+from qazaq_inflector import QazaqNameInflector
 
-inflector = KazakhNameInflector()
+inflector = QazaqNameInflector()
 
 # Жалғыз есімді септеу
 print(inflector.inflect("Нұрлан", "genitive"))      # Нұрланның
