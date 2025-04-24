@@ -11,6 +11,87 @@
 
 ```bash
 pip install kazakh-inflector
+```# qazaq_inflector
+
+**Qazaq Inflector** — библиотека на Python для склонения казахских имён, ФИО и личных местоимений по падежам.
+
+[![PyPI version](https://img.shields.io/pypi/v/qazaq_inflector.svg)](https://pypi.org/project/qazaq_inflector)
+[![Build Status](https://github.com/zhandos717/qazaq_inflector/actions/workflows/python-package.yml/badge.svg)](https://github.com/zhandos717/qazaq_inflector/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+## Возможности
+
+- Склоняет одиночные имена по всем семи казахским падежам:
+  - `nominative`, `genitive`, `dative`, `accusative`, `locative`, `ablative`, `instrumental`
+- Поддерживает фамилию, имя, отчество (ФИО):
+  - части, оканчивающиеся на `ұлы` или `қызы` (патронимика) не склоняются
+  - разбивает ФИО по пробелам и дефисам
+- Склоняет личные местоимения: `мен`, `біз`, `сен`, `сіз`, `ол`
+- Генерирует множественное число: `-дар`/`-дер`
+- Формирует полную таблицу склонений через метод `declension()`
+
+## Установка
+
+```bash
+pip install qazaq_inflector
 ```
+
+## Быстрый старт
+
+```python
+from qazaq_inflector import KazakhNameInflector
+
+inflector = KazakhNameInflector()
+
+# Склонение одиночного имени
+print(inflector.inflect("Нұрлан", "genitive"))       # Нұрланның
+print(inflector.inflect("Нұрлан", "locative"))       # Нұрланнда
+
+# Склонение ФИО
+print(inflector.inflect("Абай Құнанбаев", "dative"))   # Абайға Құнанбаевге
+
+# Склонение местоимений
+print(inflector.inflect("Мен", "ablative"))           # Меннен
+print(inflector.inflect("Сіз", "instrumental"))      # Сізбен
+
+# Множественное число
+print(inflector.pluralize("Нұрлан"))                   # Нұрландар
+
+# Полная таблица
+table = inflector.declension("Нұрлан")
+for case, (sing, plur) in table.items():
+    print(f"{case}: {sing} / {plur}")
+```
+
+## API
+
+### `inflect(name: Optional[str], case: str) -> Optional[str]`
+Склоняет `name` по падежу `case`. Если `name` равен `None` или пустая строка, возвращает оригинал.
+
+### `pluralize(name: str) -> str`
+Возвращает множественную форму `name` с учётом гармонии: `дар` или `дер`.
+
+### `declension(name: str) -> Dict[str, tuple]`
+Возвращает словарь всех падежей `{ case: (singular, plural) }`.
+
+## Тесты
+
+```bash
+git clone https://github.com/zhandos717/qazaq_inflector.git
+cd qazaq_inflector
+pip install -e .[dev]
+pytest
+```
+
+## Лицензия
+
+Проект распространяется под лицензией [MIT](LICENSE).
+
+---
+
+Автор: Zhandos Zhandarbekov  
+Email: zhandos.zhandarbekov@gmail.com
+
+
 
 
