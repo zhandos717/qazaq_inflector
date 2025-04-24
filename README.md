@@ -15,8 +15,9 @@ pip install qazaq_inflector
 
 **Qazaq Inflector** — библиотека на Python для склонения казахских имён, ФИО и личных местоимений по падежам.
 
-[![Python Version](https://img.shields.io/badge/python-3.6%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
+[![PyPI version](https://img.shields.io/pypi/v/qazaq_inflector.svg)](https://pypi.org/project/qazaq_inflector)
+[![Build Status](https://github.com/zhandos717/qazaq_inflector/actions/workflows/python-package.yml/badge.svg)](https://github.com/zhandos717/qazaq_inflector/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Возможности
 
@@ -32,7 +33,7 @@ pip install qazaq_inflector
 ## Установка
 
 ```bash
-pip install qazaq_inflector
+pip install qazaq-inflector
 ```
 
 ## Быстрый старт
