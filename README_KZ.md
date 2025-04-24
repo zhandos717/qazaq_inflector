@@ -2,9 +2,8 @@
 
 **Qazaq Inflector** — қазақ есімдерін, толық ФИО-ны және жекеше есімдіктерді септеу үшін Python кітапханасы.
 
+[![Python Version](https://img.shields.io/badge/python-3.6%2B-blue)](https://www.python.org/)
 [![PyPI version](https://img.shields.io/pypi/v/qazaq_inflector.svg)](https://pypi.org/project/qazaq_inflector)
-
-[//]: # ([![Build Status]&#40;https://github.com/zhandos717/qazaq_inflector/actions/workflows/python-package.yml/badge.svg&#41;]&#40;https://github.com/zhandos717/qazaq_inflector/actions&#41;)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Мүмкіндіктер
