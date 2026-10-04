@@ -18,6 +18,7 @@ A dependency-free Python library for declining Kazakh first names, full names an
 - Hyphenated double names: only the last part takes the suffix
 - Personal pronouns `мен`, `сен`, `сіз`, `біз`, `ол` with their irregular forms
 - Plural forms: `-лар/-лер`, `-дар/-дер`, `-тар/-тер`
+- Possessive forms for all persons with case endings: `Арнама`, `Нұрланының`, `Сәулесіне`
 - Full declension table via `declension()`
 
 ## Installation
@@ -47,6 +48,10 @@ inflector.inflect("Сіз", "instrumental")         # Сізбен
 inflector.pluralize("Арна")                      # Арналар
 inflector.pluralize("Бақыт")                     # Бақыттар
 
+inflector.possessive("Арна", "1sg")              # Арнам
+inflector.possessive("Арна", "1sg", "dative")    # Арнама
+inflector.possessive("Нұрлан", "3", "genitive")  # Нұрланының
+
 for case, (singular, plural) in inflector.declension("Нұрлан").items():
     print(f"{case}: {singular} / {plural}")
 ```
@@ -69,6 +74,19 @@ Declines `name` into `case`. Returns `None` for `None`, the input unchanged for 
 
 ### `pluralize(name: str) -> str`
 Returns the plural form of `name`.
+
+### `possessive(name: str, person: str = "3", case: str = "nominative") -> str`
+Returns the possessive form of `name` in the given case. `person` is one of:
+
+| person | owner | after vowel | after consonant |
+|---|---|---|---|
+| `1sg` | менің | -м | -ым/-ім |
+| `2sg` | сенің | -ң | -ың/-ің |
+| `2sg_formal` | сіздің | -ңыз/-ңіз | -ыңыз/-іңіз |
+| `1pl` | біздің | -мыз/-міз | -ымыз/-іміз |
+| `3` | оның / олардың | -сы/-сі | -ы/-і |
+
+After the 3rd-person suffix cases take the pronominal `-н-` (`Нұрланына`, `Нұрланын`); after `-м`/`-ң` the dative is `-а/-е` (`Арнама`, `Арнаңа`). In a full name only the last part changes.
 
 ### `declension(name: str) -> Dict[str, Tuple[str, str]]`
 Returns `{case: (singular, plural)}` for all seven cases.

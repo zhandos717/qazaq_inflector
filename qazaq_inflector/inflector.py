@@ -91,6 +91,21 @@ class QazaqNameInflector:
         },
     }
 
+    # (после гласной, после согласной), каждый вариант — (твёрдый, мягкий)
+    _POSSESSIVE_SUFFIXES: Dict[str, Tuple[Tuple[str, str], Tuple[str, str]]] = {
+        '1sg': (('м', 'м'), ('ым', 'ім')),
+        '2sg': (('ң', 'ң'), ('ың', 'ің')),
+        '2sg_formal': (('ңыз', 'ңіз'), ('ыңыз', 'іңіз')),
+        '1pl': (('мыз', 'міз'), ('ымыз', 'іміз')),
+        '3': (('сы', 'сі'), ('ы', 'і')),
+    }
+
+    # Падежи после притяжательного суффикса 3-го лица идут через вставное -н-: Арнасына, Нұрланын
+    _PRONOMINAL_CASE_SUFFIXES: Dict[str, Tuple[str, str]] = {
+        'genitive': ('ның', 'нің'), 'dative': ('на', 'не'), 'accusative': ('н', 'н'),
+        'locative': ('нда', 'нде'), 'ablative': ('нан', 'нен'), 'instrumental': ('мен', 'мен'),
+    }
+
     _PLURAL_SUFFIXES: Dict[str, Tuple[str, str]] = {
         'vowel': ('лар', 'лер'), 'sonorant': ('лар', 'лер'), 'nasal': ('дар', 'дер'),
         'voiced': ('дар', 'дер'), 'voiceless': ('тар', 'тер'),
@@ -150,10 +165,44 @@ class QazaqNameInflector:
             head, _, tail = word.rpartition('-')
             return f'{head}-{self.inflect(tail, case_lower)}'
 
-        suffixes = self._CASE_SUFFIXES.get(case_lower)
+        return self._inflect_word(word, case_lower)
+
+    def _inflect_word(self, word: str, case: str) -> str:
+        suffixes = self._CASE_SUFFIXES.get(case)
         if suffixes is None:
             return word
         return self._add_suffix(word, suffixes[self._ending_class(word)])
+
+    def possessive(self, name: str, person: str = '3', case: str = 'nominative') -> str:
+        """
+        Притяжательная форма с падежом: possessive('Арна', '1sg', 'dative') → 'Арнама'.
+
+        person: '1sg' (менің), '2sg' (сенің), '2sg_formal' (сіздің), '1pl' (біздің), '3' (оның/олардың).
+        В ФИО форму принимает только последняя часть.
+        """
+        word = name.strip()
+        case_lower = case.lower()
+        variants = self._POSSESSIVE_SUFFIXES.get(person)
+        if not word or variants is None:
+            return word
+
+        if ' ' in word or '-' in word:
+            sep = ' ' if ' ' in word else '-'
+            head, _, tail = word.rpartition(sep)
+            return f'{head}{sep}{self.possessive(tail, person, case_lower)}'
+
+        after_vowel = self._ending_class(word) == 'vowel'
+        base = self._add_suffix(word, variants[0] if after_vowel else variants[1])
+        if case_lower == 'nominative':
+            return base
+
+        if person == '3':
+            suffixes = self._PRONOMINAL_CASE_SUFFIXES.get(case_lower)
+            return base if suffixes is None else self._add_suffix(base, suffixes)
+        # После притяжательных -м/-ң барыс септік теряет начальный согласный: Арнама, Арнаңа
+        if case_lower == 'dative' and person in ('1sg', '2sg'):
+            return self._add_suffix(base, ('а', 'е'))
+        return self._inflect_word(base, case_lower)
 
     def pluralize(self, name: str) -> str:
         """Возвращает множественное число: -лар/-лер, -дар/-дер или -тар/-тер."""

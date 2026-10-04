@@ -112,3 +112,49 @@ def test_empty_and_none(inflector):
 
 def test_invalid_case_returns_word(inflector):
     assert inflector.inflect('Нұрлан', 'unknown') == 'Нұрлан'
+
+
+@pytest.mark.parametrize('name, person, expected', [
+    ('Арна', '1sg', 'Арнам'),
+    ('Арна', '2sg', 'Арнаң'),
+    ('Арна', '2sg_formal', 'Арнаңыз'),
+    ('Арна', '1pl', 'Арнамыз'),
+    ('Арна', '3', 'Арнасы'),
+    ('Нұрлан', '1sg', 'Нұрланым'),
+    ('Нұрлан', '2sg_formal', 'Нұрланыңыз'),
+    ('Нұрлан', '1pl', 'Нұрланымыз'),
+    ('Нұрлан', '3', 'Нұрланы'),
+    ('Сәуле', '3', 'Сәулесі'),
+    ('Дәулет', '1sg', 'Дәулетім'),
+    ('Дәулет', '3', 'Дәулеті'),
+])
+def test_possessive_nominative(inflector, name, person, expected):
+    assert inflector.possessive(name, person) == expected
+
+
+@pytest.mark.parametrize('name, person, case, expected', [
+    ('Арна', '1sg', 'dative', 'Арнама'),
+    ('Сәуле', '2sg', 'dative', 'Сәулеңе'),
+    ('Арна', '1sg', 'genitive', 'Арнамның'),
+    ('Арна', '1sg', 'accusative', 'Арнамды'),
+    ('Арна', '1sg', 'ablative', 'Арнамнан'),
+    ('Арна', '1pl', 'dative', 'Арнамызға'),
+    ('Арна', '2sg_formal', 'instrumental', 'Арнаңызбен'),
+    ('Нұрлан', '3', 'genitive', 'Нұрланының'),
+    ('Нұрлан', '3', 'dative', 'Нұрланына'),
+    ('Нұрлан', '3', 'accusative', 'Нұрланын'),
+    ('Нұрлан', '3', 'locative', 'Нұрланында'),
+    ('Нұрлан', '3', 'ablative', 'Нұрланынан'),
+    ('Нұрлан', '3', 'instrumental', 'Нұрланымен'),
+    ('Сәуле', '3', 'dative', 'Сәулесіне'),
+])
+def test_possessive_with_case(inflector, name, person, case, expected):
+    assert inflector.possessive(name, person, case) == expected
+
+
+def test_possessive_full_name_changes_last_part(inflector):
+    assert inflector.possessive('Абай Құнанбаев', '1sg', 'dative') == 'Абай Құнанбаевыма'
+
+
+def test_possessive_unknown_person_returns_word(inflector):
+    assert inflector.possessive('Арна', '5') == 'Арна'
