@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qazaq_inflector"
+version = "0.2.0"
+description = "Declension of Kazakh names, full names and pronouns across all seven cases"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Zhandos Zhandarbekov", email = "zhandos.zhandarbekov@gmail.com" }]
+requires-python = ">=3.9"
+keywords = ["kazakh", "language", "grammar", "inflection", "declension"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Linguistic",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Kazakh",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "pytest-cov", "flake8"]
+
+[project.urls]
+Homepage = "https://github.com/zhandos717/qazaq_inflector"
+Issues = "https://github.com/zhandos717/qazaq_inflector/issues"
+
+[tool.setuptools.packages.find]
+include = ["qazaq_inflector*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

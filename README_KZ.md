@@ -2,7 +2,9 @@
 
 **Qazaq Inflector** — қазақ есімдерін, толық ФИО-ны және жекеше есімдіктерді септеу үшін Python кітапханасы.
 
-[![Python Version](https://img.shields.io/badge/python-3.6%2B-blue)](https://www.python.org/)
+[English](README.md) · [Русский](README_RU.md)
+
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue)](https://www.python.org/)
 [![PyPI version](https://img.shields.io/pypi/v/qazaq_inflector.svg)](https://pypi.org/project/qazaq_inflector)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -14,7 +16,7 @@
   - `ұлы`, `қызы` деген жақтауықтары бар бөліктер өзгеріссіз қалады
   - ФИО әр сөзін пробел мен дефис арқылы сұрыптап, бөлек өңдейді
 - Жекеше есімдіктерді (мен, біз, сен, сіз, ол) арнайы түрде септейді
-- Көбейткіш сан (көпше түр) — `-дар`/`-дер`
+- Көбейткіш сан (көпше түр) — `-лар/-лер`, `-дар/-дер`, `-тар/-тер`
 - Барлық септіктерді кесте түрінде алуға мүмкіндік береді (`declension()` әдісі)
 
 ## Орнату
@@ -32,13 +34,13 @@ inflector = QazaqNameInflector()
 
 # Жалғыз есімді септеу
 print(inflector.inflect("Нұрлан", "genitive"))      # Нұрланның
-print(inflector.inflect("Нұрлан", "locative"))      # Нұрланнда
+print(inflector.inflect("Нұрлан", "locative"))      # Нұрланда
 
 # Толық ФИО-ны септеу
-print(inflector.inflect("Абай Құнанбаев", "dative"))  # Абайға Құнанбаевге
+print(inflector.inflect("Абай Құнанбаев", "dative"))  # Абайға Құнанбаевқа
 
 # Жекеше есімдіктерді септеу
-print(inflector.inflect("Мен", "ablative"))          # Меннен
+print(inflector.inflect("Мен", "ablative"))          # Менен
 print(inflector.inflect("Сіз", "instrumental"))     # Сізбен
 
 # Көпше түрді алу
@@ -56,7 +58,7 @@ for case, (sing, plur) in table.items():
 Берілген `name` жолын `case` септігіне сәйкес өңдейді. Егер `name` бос немесе `None` болса, бастапқы жол қайтарылады.
 
 ### `pluralize(name: str) -> str`
-`name`-ге сәйкес көпше түрді (дар/дер) қайтарады.
+`name`-ге сәйкес көпше түрді (-лар/-дар/-тар) қайтарады.
 
 ### `declension(name: str) -> Dict[str, tuple]`
 Есімнің барлық септік түрлерін сөздік ретінде қайтарады: `{ case: (жал.single, көпше) }`.
@@ -66,7 +68,7 @@ for case, (sing, plur) in table.items():
 ```bash
 git clone https://github.com/zhandos717/qazaq_inflector.git
 cd qazaq_inflector
-pip install -e .[dev]
+pip install -e ".[dev]"
 pytest
 ```
 
@@ -78,4 +80,3 @@ pytest
 
 Автор: Zhandos Zhandarbekov  
 Email: zhandos.zhandarbekov@gmail.com
-
