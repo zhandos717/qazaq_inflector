@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.0] - 2026-10-05
+
+### Added
+- `predicate(word, person)` — personal predicate endings: `студентпін`, `Нұрлансың`, `қазақпыз`, `оқушысыңдар`.
+- Plural pronouns `сендер`, `сіздер`, `олар` in `inflect()` and as owners in `genitive_phrase()`: `сендердің балаларың`.
+
+### Fixed
+- Feminine surnames `-ова/-ева` with a front-vowel stem took front suffixes: `Ахметоваге` → `Ахметоваға`.
+
 ## [0.4.0] - 2026-10-05
 
 ### Added
@@ -37,6 +46,7 @@
 
 - Initial release.
 
+[0.5.0]: https://github.com/zhandos717/qazaq_inflector/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/zhandos717/qazaq_inflector/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/zhandos717/qazaq_inflector/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/zhandos717/qazaq_inflector/compare/v0.1.0...v0.2.0

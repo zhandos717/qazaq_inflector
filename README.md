@@ -13,10 +13,11 @@ A dependency-free Python library for declining Kazakh first names, full names an
 
 - All seven Kazakh cases: `nominative`, `genitive`, `dative`, `accusative`, `locative`, `ablative`, `instrumental`
 - Vowel harmony (back/front vowels) and suffix choice by the final sound: vowel, nasal (`м н ң`), sonorant (`л р й у и`), `ж з`, voiceless consonant
-- Russian-style surnames (`-ов`, `-ев`, `-ова`, `-ева`) take harmony from the Kazakh stem: `Құнанбаев → Құнанбаевқа`
+- Russian-style surnames: masculine `-ов/-ев` take harmony from the Kazakh stem (`Құнанбаевқа`, `Ахметовке`), feminine `-ова/-ева` from the final `-а` (`Ахметоваға`)
 - Full names: every space-separated part is declined, patronymics ending in `ұлы` / `қызы` stay unchanged
 - Hyphenated double names: only the last part takes the suffix
-- Personal pronouns `мен`, `сен`, `сіз`, `біз`, `ол` with their irregular forms
+- Personal pronouns `мен`, `сен`, `сіз`, `ол`, `біз`, `сендер`, `сіздер`, `олар` with their irregular forms
+- Personal predicate endings: `студентпін`, `Нұрлансың`, `қазақпыз`
 - Plural forms: `-лар/-лер`, `-дар/-дер`, `-тар/-тер`
 - Possessive forms for all persons with case endings: `Арнама`, `Нұрланының`, `Арналарыңыз`
 - Several possessed items: `Арналарым`, `Нұрландары`
@@ -61,6 +62,10 @@ inflector.possessive("Арна", "1sg", plural=True)  # Арналарым
 inflector.genitive_phrase("Нұрлан", "әке")              # Нұрланның әкесі
 inflector.genitive_phrase("Нұрлан", "әке", "dative")    # Нұрланның әкесіне
 inflector.genitive_phrase("мен", "кітап")               # менің кітабым
+inflector.genitive_phrase("сендер", "бала")             # сендердің балаларың
+
+inflector.predicate("студент", "1sg")                   # студентпін
+inflector.predicate("Нұрлан", "2sg")                    # Нұрлансың
 
 QazaqNameInflector(strict=True).inflect("Нұрлан", "dativ")  # ValueError: Unknown case 'dativ'
 
@@ -104,6 +109,18 @@ After the 3rd-person suffix cases take the pronominal `-н-` (`Нұрланын�
 
 ### `genitive_phrase(owner: str, thing: str, case: str = "nominative", plural: bool = False) -> str`
 Builds the "owner's thing" phrase: owner in genitive, thing with the matching possessive suffix and `case`. A pronoun owner sets the person: `мен → менің кітабым`.
+
+### `predicate(word: str, person: str) -> str`
+Adds the personal predicate ending (жіктік жалғау). `person` takes the same values as in `possessive()`; `3` adds nothing.
+
+| person | after vowel / sonorant | after `ж з` | after voiceless |
+|---|---|---|---|
+| `1sg` | -мын/-мін | -бын/-бін | -пын/-пін |
+| `1pl` | -мыз/-міз | -быз/-біз | -пыз/-піз |
+| `2sg` | -сың/-сің | | |
+| `2sg_formal` | -сыз/-сіз | | |
+| `2pl` | -сыңдар/-сіңдер | | |
+| `2pl_formal` | -сыздар/-сіздер | | |
 
 ### `QazaqNameInflector(strict: bool = False)`
 With `strict=True`, an unknown case or person raises `ValueError` instead of returning the input unchanged.

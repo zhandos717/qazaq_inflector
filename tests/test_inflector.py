@@ -223,3 +223,66 @@ def test_strict_mode_raises(call):
 def test_non_strict_returns_input_for_unknown_case(inflector):
     assert inflector.inflect('мен', 'dativ') == 'мен'
     assert inflector.possessive('', '4') == ''
+
+
+@pytest.mark.parametrize('pronoun, case, expected', [
+    ('сендер', 'genitive', 'сендердің'),
+    ('сендер', 'dative', 'сендерге'),
+    ('Сіздер', 'ablative', 'Сіздерден'),
+    ('олар', 'dative', 'оларға'),
+    ('олар', 'instrumental', 'олармен'),
+])
+def test_plural_pronouns(inflector, pronoun, case, expected):
+    assert inflector.inflect(pronoun, case) == expected
+
+
+@pytest.mark.parametrize('owner, thing, case, expected', [
+    ('сендер', 'бала', 'nominative', 'сендердің балаларың'),
+    ('сіздер', 'үй', 'dative', 'сіздердің үйлеріңізге'),
+    ('олар', 'бала', 'nominative', 'олардың баласы'),
+])
+def test_genitive_phrase_plural_pronoun_owners(inflector, owner, thing, case, expected):
+    assert inflector.genitive_phrase(owner, thing, case) == expected
+
+
+@pytest.mark.parametrize('surname, case, expected', [
+    ('Ахметова', 'genitive', 'Ахметованың'),
+    ('Ахметова', 'dative', 'Ахметоваға'),
+    ('Ахметова', 'accusative', 'Ахметованы'),
+    ('Ахметова', 'locative', 'Ахметовада'),
+    ('Ахметова', 'ablative', 'Ахметовадан'),
+    ('Ахметова', 'instrumental', 'Ахметовамен'),
+    ('Әлиева', 'dative', 'Әлиеваға'),
+    ('Сейітова', 'genitive', 'Сейітованың'),
+    ('Назарбаева', 'accusative', 'Назарбаеваны'),
+    ('Ахметов', 'dative', 'Ахметовке'),
+])
+def test_female_and_male_surnames(inflector, surname, case, expected):
+    assert inflector.inflect(surname, case) == expected
+
+
+def test_female_surname_possessive(inflector):
+    assert inflector.possessive('Ахметова', '3', 'dative') == 'Ахметовасына'
+
+
+@pytest.mark.parametrize('word, person, expected', [
+    ('Арна', '1sg', 'Арнамын'),
+    ('Нұрлан', '1sg', 'Нұрланмын'),
+    ('Асқар', '1sg', 'Асқармын'),
+    ('қыз', '1sg', 'қызбын'),
+    ('студент', '1sg', 'студентпін'),
+    ('қазақ', '1pl', 'қазақпыз'),
+    ('мұғалім', '1pl', 'мұғалімміз'),
+    ('Нұрлан', '2sg', 'Нұрлансың'),
+    ('мұғалім', '2sg_formal', 'мұғалімсіз'),
+    ('оқушы', '2pl', 'оқушысыңдар'),
+    ('дәрігер', '2pl_formal', 'дәрігерсіздер'),
+    ('Ахмет', '3', 'Ахмет'),
+])
+def test_predicate(inflector, word, person, expected):
+    assert inflector.predicate(word, person) == expected
+
+
+def test_predicate_strict_unknown_person():
+    with pytest.raises(ValueError):
+        QazaqNameInflector(strict=True).predicate('студент', '4')

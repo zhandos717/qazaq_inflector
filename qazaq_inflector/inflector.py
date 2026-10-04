@@ -18,7 +18,7 @@ class QazaqNameInflector:
     Особенности:
       - ФИО: части, оканчивающиеся на 'ұлы' или 'қызы', не склоняются.
       - В ФИО через пробел склоняется каждая часть, в двойном имени через дефис — только последняя.
-      - Местоимения (мен, біз, сен, сіз, ол) имеют специальные формы.
+      - Местоимения (мен, сен, сіз, ол, біз, сендер, сіздер, олар) имеют специальные формы.
     """
 
     CASES: Tuple[str, ...] = (
@@ -40,8 +40,9 @@ class QazaqNameInflector:
     _VOICING = {'п': 'б', 'к': 'г', 'қ': 'ғ', 'П': 'Б', 'К': 'Г', 'Қ': 'Ғ'}
 
     _PATRONYMIC_SUFFIXES = ('ұлы', 'қызы')
-    # Гармонию русских фамилий определяет казахская основа: Құнанбаев → Құнанба-
-    _SURNAME_SUFFIXES = ('ова', 'ева', 'ов', 'ев')
+    # Гармонию мужских фамилий определяет основа: Құнанбаев → Құнанба-, Ахметов → Ахмет-.
+    # В женских -ова/-ева гармонию задаёт конечная -а: Ахметоваға
+    _SURNAME_SUFFIXES = ('ов', 'ев')
 
     _PRONOUNS: Dict[str, Dict[str, str]] = {
         'мен': {
@@ -63,6 +64,18 @@ class QazaqNameInflector:
         'ол': {
             'nominative': 'ол', 'genitive': 'оның', 'dative': 'оған', 'accusative': 'оны',
             'locative': 'онда', 'ablative': 'одан', 'instrumental': 'онымен',
+        },
+        'сендер': {
+            'nominative': 'сендер', 'genitive': 'сендердің', 'dative': 'сендерге', 'accusative': 'сендерді',
+            'locative': 'сендерде', 'ablative': 'сендерден', 'instrumental': 'сендермен',
+        },
+        'сіздер': {
+            'nominative': 'сіздер', 'genitive': 'сіздердің', 'dative': 'сіздерге', 'accusative': 'сіздерді',
+            'locative': 'сіздерде', 'ablative': 'сіздерден', 'instrumental': 'сіздермен',
+        },
+        'олар': {
+            'nominative': 'олар', 'genitive': 'олардың', 'dative': 'оларға', 'accusative': 'оларды',
+            'locative': 'оларда', 'ablative': 'олардан', 'instrumental': 'олармен',
         },
     }
 
@@ -102,7 +115,21 @@ class QazaqNameInflector:
         '1pl': (('мыз', 'міз'), ('ымыз', 'іміз')),
         '3': (('сы', 'сі'), ('ы', 'і')),
     }
-    _PRONOUN_PERSONS = {'мен': '1sg', 'сен': '2sg', 'сіз': '2sg_formal', 'біз': '1pl', 'ол': '3'}
+    _PRONOUN_PERSONS = {
+        'мен': '1sg', 'сен': '2sg', 'сіз': '2sg_formal', 'біз': '1pl',
+        'сендер': '2pl', 'сіздер': '2pl_formal', 'ол': '3', 'олар': '3',
+    }
+
+    # Жіктік жалғау: (после гласной/сонорной, после ж/з, после глухой), каждый — (твёрдый, мягкий)
+    _PREDICATE_SUFFIXES: Dict[str, Tuple[Tuple[str, str], ...]] = {
+        '1sg': (('мын', 'мін'), ('бын', 'бін'), ('пын', 'пін')),
+        '1pl': (('мыз', 'міз'), ('быз', 'біз'), ('пыз', 'піз')),
+        '2sg': (('сың', 'сің'),) * 3,
+        '2sg_formal': (('сыз', 'сіз'),) * 3,
+        '2pl': (('сыңдар', 'сіңдер'),) * 3,
+        '2pl_formal': (('сыздар', 'сіздер'),) * 3,
+        '3': (('', ''),) * 3,
+    }
 
     # Падежи после притяжательного суффикса 3-го лица идут через вставное -н-: Арнасына, Нұрланын
     _PRONOMINAL_CASE_SUFFIXES: Dict[str, Tuple[str, str]] = {
@@ -234,6 +261,23 @@ class QazaqNameInflector:
         owner_word = owner.strip()
         person = self._PRONOUN_PERSONS.get(owner_word.lower(), '3')
         return f"{self.inflect(owner_word, 'genitive')} {self.possessive(thing, person, case, plural)}"
+
+    def predicate(self, word: str, person: str) -> str:
+        """
+        Сказуемое с личным окончанием: predicate('студент', '1sg') → 'студентпін'.
+
+        person: '1sg' (мен), '2sg' (сен), '2sg_formal' (сіз), '1pl' (біз),
+        '2pl' (сендер), '2pl_formal' (сіздер), '3' (ол/олар — без окончания).
+        """
+        stripped = word.strip()
+        variants = self._PREDICATE_SUFFIXES.get(person)
+        if not stripped:
+            return stripped
+        if variants is None:
+            return self._unknown(stripped, f'person {person!r}')
+        ending = self._ending_class(stripped)
+        index = 1 if ending == 'voiced' else 2 if ending == 'voiceless' else 0
+        return self._add_suffix(stripped, variants[index])
 
     def _voice(self, word: str) -> str:
         return word[:-1] + self._VOICING.get(word[-1], word[-1])

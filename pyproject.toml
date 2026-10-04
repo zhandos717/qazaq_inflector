@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qazaq_inflector"
-version = "0.4.0"
+version = "0.5.0"
 description = "Declension of Kazakh names, full names and pronouns across all seven cases"
 readme = "README.md"
 license = "MIT"
