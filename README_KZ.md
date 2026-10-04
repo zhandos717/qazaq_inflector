@@ -61,8 +61,14 @@ for case, (sing, plur) in table.items():
 ### `pluralize(name: str) -> str`
 `name`-ге сәйкес көпше түрді (-лар/-дар/-тар) қайтарады.
 
-### `possessive(name: str, person: str = "3", case: str = "nominative") -> str`
-Тәуелдік түрін септікпен қайтарады. `person`: `1sg` (менің), `2sg` (сенің), `2sg_formal` (сіздің), `1pl` (біздің), `3` (оның). Мысалы: `possessive("Арна", "1sg", "dative")` → `Арнама`.
+### `possessive(name: str, person: str = "3", case: str = "nominative", plural: bool = False) -> str`
+Тәуелдік түрін септікпен қайтарады. `person`: `1sg` (менің), `2sg` (сенің), `2sg_formal` (сіздің), `1pl` (біздің), `2pl` (сендердің), `2pl_formal` (сіздердің), `3` (оның). `plural=True`: `Арналарым`. Мысалы: `possessive("Арна", "1sg", "dative")` → `Арнама`.
+
+### `genitive_phrase(owner, thing, case="nominative", plural=False) -> str`
+Ілік септікті тіркес: `genitive_phrase("Нұрлан", "әке")` → `Нұрланның әкесі`, `genitive_phrase("мен", "кітап")` → `менің кітабым`.
+
+### `QazaqNameInflector(strict=False)`
+`strict=True` болса, белгісіз септік не жақ үшін `ValueError` шығады.
 
 ### `declension(name: str) -> Dict[str, tuple]`
 Есімнің барлық септік түрлерін сөздік ретінде қайтарады: `{ case: (жал.single, көпше) }`.

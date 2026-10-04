@@ -18,7 +18,12 @@ A dependency-free Python library for declining Kazakh first names, full names an
 - Hyphenated double names: only the last part takes the suffix
 - Personal pronouns `мен`, `сен`, `сіз`, `біз`, `ол` with their irregular forms
 - Plural forms: `-лар/-лер`, `-дар/-дер`, `-тар/-тер`
-- Possessive forms for all persons with case endings: `Арнама`, `Нұрланының`, `Сәулесіне`
+- Possessive forms for all persons with case endings: `Арнама`, `Нұрланының`, `Арналарыңыз`
+- Several possessed items: `Арналарым`, `Нұрландары`
+- Possessive phrases: `Нұрланның әкесі`, `менің кітабым`
+- Final `п/к/қ` voicing before vowels: `кітабы`, `Сұлтанбегі`
+- Optional strict mode that raises `ValueError` on typos in case or person names
+- Ships type hints (`py.typed`)
 - Full declension table via `declension()`
 
 ## Installation
@@ -51,6 +56,13 @@ inflector.pluralize("Бақыт")                     # Бақыттар
 inflector.possessive("Арна", "1sg")              # Арнам
 inflector.possessive("Арна", "1sg", "dative")    # Арнама
 inflector.possessive("Нұрлан", "3", "genitive")  # Нұрланының
+inflector.possessive("Арна", "1sg", plural=True)  # Арналарым
+
+inflector.genitive_phrase("Нұрлан", "әке")              # Нұрланның әкесі
+inflector.genitive_phrase("Нұрлан", "әке", "dative")    # Нұрланның әкесіне
+inflector.genitive_phrase("мен", "кітап")               # менің кітабым
+
+QazaqNameInflector(strict=True).inflect("Нұрлан", "dativ")  # ValueError: Unknown case 'dativ'
 
 for case, (singular, plural) in inflector.declension("Нұрлан").items():
     print(f"{case}: {singular} / {plural}")
@@ -75,8 +87,8 @@ Declines `name` into `case`. Returns `None` for `None`, the input unchanged for 
 ### `pluralize(name: str) -> str`
 Returns the plural form of `name`.
 
-### `possessive(name: str, person: str = "3", case: str = "nominative") -> str`
-Returns the possessive form of `name` in the given case. `person` is one of:
+### `possessive(name: str, person: str = "3", case: str = "nominative", plural: bool = False) -> str`
+Returns the possessive form of `name` in the given case. `plural=True` marks several possessed items. `person` is one of:
 
 | person | owner | after vowel | after consonant |
 |---|---|---|---|
@@ -84,9 +96,17 @@ Returns the possessive form of `name` in the given case. `person` is one of:
 | `2sg` | сенің | -ң | -ың/-ің |
 | `2sg_formal` | сіздің | -ңыз/-ңіз | -ыңыз/-іңіз |
 | `1pl` | біздің | -мыз/-міз | -ымыз/-іміз |
+| `2pl` | сендердің | -ларың/-лерің (plural + 2sg) | |
+| `2pl_formal` | сіздердің | -ларыңыз/-леріңіз (plural + 2sg_formal) | |
 | `3` | оның / олардың | -сы/-сі | -ы/-і |
 
 After the 3rd-person suffix cases take the pronominal `-н-` (`Нұрланына`, `Нұрланын`); after `-м`/`-ң` the dative is `-а/-е` (`Арнама`, `Арнаңа`). In a full name only the last part changes.
+
+### `genitive_phrase(owner: str, thing: str, case: str = "nominative", plural: bool = False) -> str`
+Builds the "owner's thing" phrase: owner in genitive, thing with the matching possessive suffix and `case`. A pronoun owner sets the person: `мен → менің кітабым`.
+
+### `QazaqNameInflector(strict: bool = False)`
+With `strict=True`, an unknown case or person raises `ValueError` instead of returning the input unchanged.
 
 ### `declension(name: str) -> Dict[str, Tuple[str, str]]`
 Returns `{case: (singular, plural)}` for all seven cases.
@@ -102,6 +122,10 @@ cd qazaq_inflector
 pip install -e ".[dev]"
 pytest
 ```
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

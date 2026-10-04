@@ -36,6 +36,9 @@ class QazaqNameInflector:
     # б, в, г, д на конце заимствований оглушаются: Құнанбаевқа, Ахмедке
     _VOICELESS = frozenset('кқпстфхцчшщбвгд')
 
+    # Перед гласной глухие п, к, қ озвончаются: кітап → кітабы, Сұлтанбек → Сұлтанбегі
+    _VOICING = {'п': 'б', 'к': 'г', 'қ': 'ғ', 'П': 'Б', 'К': 'Г', 'Қ': 'Ғ'}
+
     _PATRONYMIC_SUFFIXES = ('ұлы', 'қызы')
     # Гармонию русских фамилий определяет казахская основа: Құнанбаев → Құнанба-
     _SURNAME_SUFFIXES = ('ова', 'ева', 'ов', 'ев')
@@ -99,6 +102,7 @@ class QazaqNameInflector:
         '1pl': (('мыз', 'міз'), ('ымыз', 'іміз')),
         '3': (('сы', 'сі'), ('ы', 'і')),
     }
+    _PRONOUN_PERSONS = {'мен': '1sg', 'сен': '2sg', 'сіз': '2sg_formal', 'біз': '1pl', 'ол': '3'}
 
     # Падежи после притяжательного суффикса 3-го лица идут через вставное -н-: Арнасына, Нұрланын
     _PRONOMINAL_CASE_SUFFIXES: Dict[str, Tuple[str, str]] = {
@@ -110,6 +114,10 @@ class QazaqNameInflector:
         'vowel': ('лар', 'лер'), 'sonorant': ('лар', 'лер'), 'nasal': ('дар', 'дер'),
         'voiced': ('дар', 'дер'), 'voiceless': ('тар', 'тер'),
     }
+
+    def __init__(self, strict: bool = False):
+        """strict=True — ValueError на неизвестный падеж или лицо вместо возврата слова без изменений."""
+        self.strict = strict
 
     def _is_hard(self, word: str) -> bool:
         lower = word.lower()
@@ -142,7 +150,7 @@ class QazaqNameInflector:
         return word + (suffix.upper() if word.isupper() and len(word) > 1 else suffix)
 
     def inflect(self, name: Optional[str], case: str) -> Optional[str]:
-        """Склоняет имя, ФИО или местоимение по падежу. Неизвестный падеж возвращает слово без изменений."""
+        """Склоняет имя, ФИО или местоимение. Неизвестный падеж: слово как есть или ValueError в strict."""
         if name is None:
             return None
         word = name.strip()
@@ -152,7 +160,9 @@ class QazaqNameInflector:
 
         pronoun = self._PRONOUNS.get(word.lower())
         if pronoun is not None:
-            form = pronoun.get(case_lower, word)
+            form = pronoun.get(case_lower)
+            if form is None:
+                return self._unknown(word, f'case {case!r}')
             return form.capitalize() if word[0].isupper() else form
 
         if ' ' in word:
@@ -170,39 +180,68 @@ class QazaqNameInflector:
     def _inflect_word(self, word: str, case: str) -> str:
         suffixes = self._CASE_SUFFIXES.get(case)
         if suffixes is None:
-            return word
+            return self._unknown(word, f'case {case!r}')
         return self._add_suffix(word, suffixes[self._ending_class(word)])
 
-    def possessive(self, name: str, person: str = '3', case: str = 'nominative') -> str:
+    def possessive(self, name: str, person: str = '3', case: str = 'nominative', plural: bool = False) -> str:
         """
         Притяжательная форма с падежом: possessive('Арна', '1sg', 'dative') → 'Арнама'.
 
-        person: '1sg' (менің), '2sg' (сенің), '2sg_formal' (сіздің), '1pl' (біздің), '3' (оның/олардың).
+        person: '1sg' (менің), '2sg' (сенің), '2sg_formal' (сіздің), '1pl' (біздің),
+        '2pl' (сендердің), '2pl_formal' (сіздердің), '3' (оның/олардың).
+        plural=True — несколько обладаемых: Арналарым, Нұрландары.
         В ФИО форму принимает только последняя часть.
         """
         word = name.strip()
         case_lower = case.lower()
-        variants = self._POSSESSIVE_SUFFIXES.get(person)
-        if not word or variants is None:
+        # 2-е лицо мн. ч. владельца = -лар/-лер + суффикс 2-го лица ед. ч.: үйлерің, үйлеріңіз
+        owner_plural = person in ('2pl', '2pl_formal')
+        base_person = {'2pl': '2sg', '2pl_formal': '2sg_formal'}.get(person, person)
+        variants = self._POSSESSIVE_SUFFIXES.get(base_person)
+        if not word:
             return word
+        if variants is None:
+            return self._unknown(word, f'person {person!r}')
 
         if ' ' in word or '-' in word:
             sep = ' ' if ' ' in word else '-'
             head, _, tail = word.rpartition(sep)
-            return f'{head}{sep}{self.possessive(tail, person, case_lower)}'
+            return f'{head}{sep}{self.possessive(tail, person, case_lower, plural)}'
 
-        after_vowel = self._ending_class(word) == 'vowel'
-        base = self._add_suffix(word, variants[0] if after_vowel else variants[1])
+        if plural or owner_plural:
+            word = self.pluralize(word)
+
+        if self._ending_class(word) == 'vowel':
+            base = self._add_suffix(word, variants[0])
+        else:
+            base = self._add_suffix(self._voice(word), variants[1])
         if case_lower == 'nominative':
             return base
 
-        if person == '3':
+        if base_person == '3':
             suffixes = self._PRONOMINAL_CASE_SUFFIXES.get(case_lower)
-            return base if suffixes is None else self._add_suffix(base, suffixes)
+            return self._unknown(base, f'case {case!r}') if suffixes is None else self._add_suffix(base, suffixes)
         # После притяжательных -м/-ң барыс септік теряет начальный согласный: Арнама, Арнаңа
-        if case_lower == 'dative' and person in ('1sg', '2sg'):
+        if case_lower == 'dative' and base_person in ('1sg', '2sg'):
             return self._add_suffix(base, ('а', 'е'))
         return self._inflect_word(base, case_lower)
+
+    def genitive_phrase(self, owner: str, thing: str, case: str = 'nominative', plural: bool = False) -> str:
+        """
+        Изафет «чей-то что-то»: genitive_phrase('Нұрлан', 'әке') → 'Нұрланның әкесі'.
+        Местоимение-владелец задаёт лицо: genitive_phrase('мен', 'кітап') → 'менің кітабым'.
+        """
+        owner_word = owner.strip()
+        person = self._PRONOUN_PERSONS.get(owner_word.lower(), '3')
+        return f"{self.inflect(owner_word, 'genitive')} {self.possessive(thing, person, case, plural)}"
+
+    def _voice(self, word: str) -> str:
+        return word[:-1] + self._VOICING.get(word[-1], word[-1])
+
+    def _unknown(self, word: str, what: str) -> str:
+        if self.strict:
+            raise ValueError(f'Unknown {what}')
+        return word
 
     def pluralize(self, name: str) -> str:
         """Возвращает множественное число: -лар/-лер, -дар/-дер или -тар/-тер."""

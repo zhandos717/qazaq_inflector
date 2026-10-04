@@ -158,3 +158,68 @@ def test_possessive_full_name_changes_last_part(inflector):
 
 def test_possessive_unknown_person_returns_word(inflector):
     assert inflector.possessive('Арна', '5') == 'Арна'
+
+
+@pytest.mark.parametrize('name, person, case, expected', [
+    ('Арна', '2pl', 'nominative', 'Арналарың'),
+    ('Нұрлан', '2pl', 'nominative', 'Нұрландарың'),
+    ('Сәуле', '2pl_formal', 'nominative', 'Сәулелеріңіз'),
+    ('Арна', '2pl', 'dative', 'Арналарыңа'),
+    ('Арна', '2pl_formal', 'locative', 'Арналарыңызда'),
+])
+def test_possessive_second_person_plural(inflector, name, person, case, expected):
+    assert inflector.possessive(name, person, case) == expected
+
+
+@pytest.mark.parametrize('name, person, case, expected', [
+    ('Арна', '1sg', 'nominative', 'Арналарым'),
+    ('Нұрлан', '3', 'nominative', 'Нұрландары'),
+    ('Сәуле', '1pl', 'dative', 'Сәулелерімізге'),
+    ('Нұрлан', '3', 'genitive', 'Нұрландарының'),
+])
+def test_possessive_plural_possessed(inflector, name, person, case, expected):
+    assert inflector.possessive(name, person, case, plural=True) == expected
+
+
+@pytest.mark.parametrize('word, person, expected', [
+    ('кітап', '3', 'кітабы'),
+    ('Сұлтанбек', '3', 'Сұлтанбегі'),
+    ('Сұлтанбек', '1sg', 'Сұлтанбегім'),
+    ('ақ', '3', 'ағы'),
+    ('кітап', '2sg', 'кітабың'),
+])
+def test_possessive_voices_final_consonant(inflector, word, person, expected):
+    assert inflector.possessive(word, person) == expected
+
+
+@pytest.mark.parametrize('owner, thing, case, expected', [
+    ('Нұрлан', 'әке', 'nominative', 'Нұрланның әкесі'),
+    ('Нұрлан', 'әке', 'dative', 'Нұрланның әкесіне'),
+    ('Арна', 'кітап', 'accusative', 'Арнаның кітабын'),
+    ('мен', 'кітап', 'nominative', 'менің кітабым'),
+    ('Сіз', 'кітап', 'locative', 'Сіздің кітабыңызда'),
+    ('ол', 'дос', 'nominative', 'оның досы'),
+])
+def test_genitive_phrase(inflector, owner, thing, case, expected):
+    assert inflector.genitive_phrase(owner, thing, case) == expected
+
+
+def test_genitive_phrase_plural(inflector):
+    assert inflector.genitive_phrase('біз', 'бала', plural=True) == 'біздің балаларымыз'
+
+
+@pytest.mark.parametrize('call', [
+    lambda i: i.inflect('Нұрлан', 'dativ'),
+    lambda i: i.inflect('мен', 'dativ'),
+    lambda i: i.possessive('Арна', '4'),
+    lambda i: i.possessive('Арна', '3', 'dativ'),
+    lambda i: i.possessive('Арна', '1sg', 'dativ'),
+])
+def test_strict_mode_raises(call):
+    with pytest.raises(ValueError):
+        call(QazaqNameInflector(strict=True))
+
+
+def test_non_strict_returns_input_for_unknown_case(inflector):
+    assert inflector.inflect('мен', 'dativ') == 'мен'
+    assert inflector.possessive('', '4') == ''

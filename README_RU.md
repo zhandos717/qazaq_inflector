@@ -61,8 +61,14 @@ for case, (sing, plur) in table.items():
 ### `pluralize(name: str) -> str`
 Возвращает множественную форму `name` с учётом гармонии и последнего звука: `-лар`, `-дар` или `-тар`.
 
-### `possessive(name: str, person: str = "3", case: str = "nominative") -> str`
-Притяжательная форма в нужном падеже. `person`: `1sg` (менің), `2sg` (сенің), `2sg_formal` (сіздің), `1pl` (біздің), `3` (оның). Пример: `possessive("Арна", "1sg", "dative")` → `Арнама`.
+### `possessive(name: str, person: str = "3", case: str = "nominative", plural: bool = False) -> str`
+Притяжательная форма в нужном падеже. `person`: `1sg` (менің), `2sg` (сенің), `2sg_formal` (сіздің), `1pl` (біздің), `2pl` (сендердің), `2pl_formal` (сіздердің), `3` (оның). `plural=True`: `Арналарым`. Пример: `possessive("Арна", "1sg", "dative")` → `Арнама`.
+
+### `genitive_phrase(owner, thing, case="nominative", plural=False) -> str`
+Изафет «чьё-то что-то»: `genitive_phrase("Нұрлан", "әке")` → `Нұрланның әкесі`, `genitive_phrase("мен", "кітап")` → `менің кітабым`.
+
+### `QazaqNameInflector(strict=False)`
+При `strict=True` неизвестный падеж или лицо вызывает `ValueError`.
 
 ### `declension(name: str) -> Dict[str, tuple]`
 Возвращает словарь всех падежей `{ case: (singular, plural) }`.
