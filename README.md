@@ -9,6 +9,8 @@ A dependency-free Python library for declining Kazakh first names, full names an
 
 [Русская версия](README_RU.md) · [Қазақша нұсқасы](README_KZ.md)
 
+PHP version: [zhandos717/qazaq-inflector](https://github.com/zhandos717/qazaq-inflector-php) on Packagist.
+
 ## Features
 
 - All seven Kazakh cases: `nominative`, `genitive`, `dative`, `accusative`, `locative`, `ablative`, `instrumental`
